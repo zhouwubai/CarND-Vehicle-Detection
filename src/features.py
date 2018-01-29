@@ -1,6 +1,6 @@
-import matplotlib.image as mpimg
 import numpy as np
 import cv2
+from skimage.feature import hog
 
 
 def color_hist(img, nbins=32, bins_range=(0, 256)):
@@ -35,3 +35,24 @@ def bin_spatial(img, color_space='RGB', size=(32, 32)):
 
     return features
 
+
+def hog_features(img, orient, pix_per_cell, cell_per_block,
+                 vis=False, feature_vec=True):
+    if vis:
+        # use skimage.hog() to get both features and a visualization
+        features, hog_image =\
+            hog(img, orientations=orient,
+                pixels_per_cell=(pix_per_cell, pix_per_cell),
+                cells_per_block=(cell_per_block, cell_per_block),
+                visualise=vis, feature_vector=feature_vec)
+        return features, hog_image
+    else:
+        features = hog(img, orientations=orient,
+                       pixels_per_cell=(pix_per_cell, pix_per_cell),
+                       cells_per_block=(cell_per_block, cell_per_block),
+                       visualise=vis, feature_vector=feature_vec)
+        return features
+
+
+def extract_features():
+    pass
