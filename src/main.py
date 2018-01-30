@@ -1,14 +1,14 @@
 import numpy as np
+from sklearn.preprocessing import StandardScaler
+
+
 feature_list = [feature_vec1, feature_vec2, ...]
 # Create an array stack, NOTE: StandardScaler() expects np.float64
 X = np.vstack(feature_list).astype(np.float64)
-
-from sklearn.preprocessing import StandardScaler
 # Fit a per-column scaler
 X_scaler = StandardScaler().fit(X)
 # Apply the scaler to X
 scaled_X = X_scaler.transform(X)
-
 
 
 car_features = extract_features(cars, cspace='RGB', spatial_size=(spatial, spatial),

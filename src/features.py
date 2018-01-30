@@ -1,6 +1,27 @@
 import numpy as np
 import cv2
 from skimage.feature import hog
+import matplotlib.image as mpimg
+
+
+def cvtColor(img, color_space='RGB'):
+    """
+    Convert RGB image to other color_space
+    """
+    if color_space != 'RGB':
+        if color_space == 'HSV':
+            feature_image = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+        elif color_space == 'LUV':
+            feature_image = cv2.cvtColor(img, cv2.COLOR_RGB2LUV)
+        elif color_space == 'HLS':
+            feature_image = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
+        elif color_space == 'YUV':
+            feature_image = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
+        elif color_space == 'YCrCb':
+            feature_image = cv2.cvtColor(img, cv2.COLOR_RGB2YCrCb)
+    else:
+        feature_image = np.copy(img)
+    return feature_image
 
 
 def color_hist(img, nbins=32, bins_range=(0, 256)):
@@ -17,19 +38,7 @@ def color_hist(img, nbins=32, bins_range=(0, 256)):
 
 
 def bin_spatial(img, color_space='RGB', size=(32, 32)):
-    if color_space != 'RGB':
-        if color_space == 'HSV':
-            feature_image = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-        elif color_space == 'LUV':
-            feature_image = cv2.cvtColor(img, cv2.COLOR_RGB2LUV)
-        elif color_space == 'HLS':
-            feature_image = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
-        elif color_space == 'YUV':
-            feature_image = cv2.cvtColor(img, cv2.COLOR_RGB2YUV)
-        elif color_space == 'YCrCb':
-            feature_image = cv2.cvtColor(img, cv2.COLOR_RGB2YCrCb)
-    else:
-        feature_image = np.copy(img)
+    feature_image = cvtColor(img, color_space=color_space)
     feature_image = cv2.resize(feature_image, size)
     features = feature_image.ravel()
 
@@ -54,5 +63,51 @@ def hog_features(img, orient, pix_per_cell, cell_per_block,
         return features
 
 
-def extract_features():
-    pass
+def extract_features(imgs, color_space='RGB', spatial_size=(32, 32),
+                     hist_bins=32, hist_range=(0, 256)):
+    features = []
+    for img in imgs:
+        image = mpimg.imread(img)
+        feature_image = cvtColor(image, color_space=color_space)
+        spatial_feature_vec = bin_spatial(feature_image, size=spatial_size)
+        hist_feature_vec = color_hist(feature_image,
+                                      nbins=hist_bins,
+                                      bins_range=hist_range)
+        features.append(np.concatenate((spatial_feature_vec,
+                                        hist_feature_vec)))
+    return features
+
+
+def single_img_features(img, color_space='RGB', spatial_size=(32, 32),
+                        hist_bins=32, orient=9,
+                        pix_per_cell=8, cell_per_block=2, hog_channel=0,
+                        spatial_feat=True, hist_feat=True, hog_feat=True):
+    """
+    Define a function to extract features from a single image window
+    This function is very similar to extract_features()
+    just for a single image rather than list of images
+    """
+    img_features = []
+    feature_image = cvtColor(img, color_space=color_space)
+    if spatial_feat:
+        spatial_features = bin_spatial(feature_image, size=spatial_size)
+        img_features.append(spatial_features)
+    if hist_feat:
+        hist_features = color_hist(feature_image, nbins=hist_bins)
+        img_features.append(hist_features)
+    if hog_feat:
+        if hog_channel == 'ALL':
+            hog_features = []
+            for channel in range(feature_image.shape[2]):
+                hog_features.extend(hog_features(feature_image[:, :, channel],
+                                    orient, pix_per_cell, cell_per_block,
+                                    vis=False, feature_vec=True))
+        else:
+            hog_features = hog_features(feature_image[:, :, hog_channel],
+                                        orient,
+                                        pix_per_cell, cell_per_block,
+                                        vis=False, feature_vec=True)
+        img_features.append(hog_features)
+
+    return np.concatenate(img_features)
+
