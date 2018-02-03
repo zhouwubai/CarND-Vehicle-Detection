@@ -13,16 +13,16 @@ from constants import *
 
 # NOTE: the next import is only valid for scikit-learn version <= 0.17
 # for scikit-learn >= 0.18 use:
-# from sklearn.model_selection import train_test_split
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
+# from sklearn.cross_validation import train_test_split
 
 # Read in cars and notcars
-data_root = root + '/data/'
-images = glob.glob('*.jpeg')
+data_root = root + 'data/'
+images = glob.glob(data_root + '**/*.png', recursive=True)
 cars = []
 notcars = []
 for image in images:
-    if 'image' in image or 'extra' in image:
+    if 'non-vehicles' in image:
         notcars.append(image)
     else:
         cars.append(image)
@@ -64,6 +64,8 @@ notcar_features = extract_features(notcars, color_space=color_space,
                                    hist_feat=hist_feat, hog_feat=hog_feat)
 
 X = np.vstack((car_features, notcar_features)).astype(np.float64)
+print(X.shape)
+# X = X.astype(np.float64)
 # Fit a per-column scaler
 X_scaler = StandardScaler().fit(X)
 # Apply the scaler to X
@@ -93,7 +95,8 @@ print('Test Accuracy of SVC = ', round(svc.score(X_test, y_test), 4))
 # Check the prediction time for a single sample
 t = time.time()
 
-image = mpimg.imread('bbox-example-image.jpg')
+test_img = root + 'test_images/test1.jpg'
+image = mpimg.imread(test_img)
 draw_image = np.copy(image)
 
 # Uncomment the following line if you extracted training
@@ -117,3 +120,4 @@ hot_windows = search_windows(image, windows, svc, X_scaler,
 window_img = draw_boxes(draw_image, hot_windows, color=(0, 0, 255), thick=6)
 
 plt.imshow(window_img)
+plt.show()

@@ -3,7 +3,6 @@ import cv2
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-from draw_utils import *
 from utils import *
 
 f_path = root + 'test_images/test1.jpg'

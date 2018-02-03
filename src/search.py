@@ -88,7 +88,7 @@ def find_cars(img, ystart, ystop, scale, svc, X_scaler,
     # Define blocks and steps as above
     nxblocks = (ch1.shape[1] // pix_per_cell) - cell_per_block + 1
     nyblocks = (ch1.shape[0] // pix_per_cell) - cell_per_block + 1
-    nfeat_per_block = orient * cell_per_block**2
+    # nfeat_per_block = orient * cell_per_block**2
 
     # 64 was the orginal sampling rate, with 8 cells and 8 pix per cell
     window = 64
