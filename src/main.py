@@ -9,6 +9,8 @@ from sklearn.preprocessing import StandardScaler
 from search import *
 from features import *
 from utils import *
+from constants import *
+
 # NOTE: the next import is only valid for scikit-learn version <= 0.17
 # for scikit-learn >= 0.18 use:
 # from sklearn.model_selection import train_test_split

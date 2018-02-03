@@ -2,9 +2,6 @@ import cv2
 import numpy as np
 
 
-root = '/Users/wubai.zhou/Uber/CarND-Vehicle-Detection/'
-
-
 def cvtColor(img, color_space='RGB'):
     """
     Convert RGB image to other color_space
