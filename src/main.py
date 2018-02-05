@@ -29,7 +29,8 @@ for image in images:
 
 # Reduce the sample size because
 # The quiz evaluator times out after 13s of CPU time
-sample_size = 500
+print(len(cars), len(notcars))
+sample_size = 2500
 cars = cars[0:sample_size]
 notcars = notcars[0:sample_size]
 
@@ -41,9 +42,9 @@ cell_per_block = 2  # HOG cells per block
 hog_channel = 0  # Can be 0, 1, 2, or "ALL"
 spatial_size = (16, 16)  # Spatial binning dimensions
 hist_bins = 16  # Number of histogram bins
-spatial_feat = True  # Spatial features on or off
-hist_feat = True  # Histogram features on or off
-hog_feat = True  # HOG features on or off
+spatial_feat = True  # Spatial features on or off, None < 0
+hist_feat = False  # Histogram features on or off
+hog_feat = False  # HOG features on or off
 y_start_stop = [500, None]  # Min and max in y to search in slide_window()
 
 
@@ -67,6 +68,8 @@ X = np.vstack((car_features, notcar_features)).astype(np.float64)
 print(X.shape)
 # X = X.astype(np.float64)
 # Fit a per-column scaler
+print(np.any(X < 0), np.any(X > 255))
+print(np.any(np.isnan(X)), np.any(np.isfinite(X)))
 X_scaler = StandardScaler().fit(X)
 # Apply the scaler to X
 scaled_X = X_scaler.transform(X)

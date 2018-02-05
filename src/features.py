@@ -16,7 +16,7 @@ def color_hist(img, nbins=32, bins_range=(0, 256), vis=False):
     hist_features = np.concatenate((rhist[0], ghist[0], bhist[0]))
 
     if vis:
-        return rhist, ghist, bhist, bin_centers, hist_features
+        return hist_features, rhist, ghist, bhist, bin_centers
     else:
         return hist_features
 
@@ -29,7 +29,7 @@ def bin_spatial(img, color_space='RGB', size=(32, 32)):
     return features
 
 
-def hog_features2D(img, orient, pix_per_cell, cell_per_block,
+def hog_features2D(img, orient=9, pix_per_cell=8, cell_per_block=2,
                    vis=False, feature_vec=True):
     if vis:
         # use skimage.hog() to get both features and a visualization
@@ -72,7 +72,7 @@ def extract_features(imgs, color_space='RGB', spatial_size=(32, 32),
         # to handle difference scale for different image formta
         image = mpimg.imread(img)
         if img.endswith('.png'):
-            image = mpimg.imread(img) * 255
+            image *= 255
 
         feature = single_img_features(image, color_space, spatial_size,
                                       hist_bins, orient, pix_per_cell,
