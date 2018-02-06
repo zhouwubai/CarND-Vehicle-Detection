@@ -22,17 +22,15 @@ def color_hist(img, nbins=32, bins_range=(0, 256), vis=False):
 
 
 def bin_spatial(img, color_space='RGB', size=(32, 32)):
-    if np.any(img < 0) or np.any(img > 255):
-        # print(img[np.where(img < 0)], img[np.where(img > 255)])
-        # print('fucking error')
-        pass
-
     feature_image = cvtColor(img, color_space=color_space)
+    if np.any(np.isnan(feature_image)):
+        print("29 Error")
     feature_image = cv2.resize(feature_image, size)
+    if np.any(np.isnan(feature_image)):
+        print("32 Error")
+        np.set_printoptions(threshold=np.inf)
+        print(img)
     features = feature_image.ravel()
-
-    np.set_printoptions(threshold=np.inf)
-    # print(features)
 
     return features
 
@@ -80,23 +78,14 @@ def extract_features(imgs, color_space='RGB', spatial_size=(32, 32),
         # to handle difference scale for different image formta
         image = mpimg.imread(img)
         if img.endswith('.png'):
-            if np.any(image < 0) or np.any(image > 1):
-                print(image[np.where(image < 0)], image[np.where(image > 1)])
-                print('fucking another error')
             image *= 255
+            image = image.astype(np.uint8)
 
         feature = single_img_features(image, color_space, spatial_size,
                                       hist_bins, orient, pix_per_cell,
                                       cell_per_block, hog_channel,
                                       spatial_feat, hist_feat, hog_feat)
-
-        if spatial_feat:
-            if np.all(feature >= 0) and np.all(feature <= 255):
-                print(img)
         features.append(feature)
-
-    np.set_printoptions(threshold=np.inf)
-    # print(features[0])
     return features
 
 

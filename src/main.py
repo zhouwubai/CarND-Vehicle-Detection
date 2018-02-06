@@ -30,7 +30,7 @@ for image in images:
 # Reduce the sample size because
 # The quiz evaluator times out after 13s of CPU time
 print(len(cars), len(notcars))
-sample_size = 500
+sample_size = 2000
 cars = cars[0:sample_size]
 notcars = notcars[0:sample_size]
 
@@ -68,8 +68,7 @@ X = np.vstack((car_features, notcar_features)).astype(np.float64)
 print(X.shape)
 # X = X.astype(np.float64)
 # Fit a per-column scaler
-print(np.any(X < 0), np.any(X > 255))
-print(np.any(np.isnan(X)), np.any(np.isfinite(X)))
+print(np.any(np.isnan(X)))
 X_scaler = StandardScaler().fit(X)
 # Apply the scaler to X
 scaled_X = X_scaler.transform(X)
