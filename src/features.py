@@ -23,13 +23,7 @@ def color_hist(img, nbins=32, bins_range=(0, 256), vis=False):
 
 def bin_spatial(img, color_space='RGB', size=(32, 32)):
     feature_image = cvtColor(img, color_space=color_space)
-    if np.any(np.isnan(feature_image)):
-        print("29 Error")
     feature_image = cv2.resize(feature_image, size)
-    if np.any(np.isnan(feature_image)):
-        print("32 Error")
-        np.set_printoptions(threshold=np.inf)
-        print(img)
     features = feature_image.ravel()
 
     return features

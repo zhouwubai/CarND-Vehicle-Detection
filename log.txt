@@ -1,0 +1,201 @@
+Best Parameters
+
+spatial_feat = True
+LUV < YUV < YCrCb,  (16, 16)
+Best score: 0.9372
+
+hist_feat = True
+All color are relatvie good, except RGB
+hist_bin = 16
+Best score: 0.9778
+
+# LUV
+Using: 16 orientations 16 pixels per cell and 2 cells per block
+Best score: 0.9535
+
+
+Recording the process of paramter tuning
+
+Feature vector length: 3364
+218.67 Seconds to train SVC...
+Test Accuracy of SVC =  0.9834
+
+Using: 13 orientations 8 pixels per cell and 2 cells per block
+Feature vector length: 3364
+94.45 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9657
+
+
+Using: 13 orientations 8 pixels per cell and 2 cells per block
+Feature vector length: 3364
+1.37 Seconds to train ModelType.GuassianNB...
+Test Accuracy of ModelType.GuassianNB =  0.9102
+
+# spatial_feat = True, HLS
+Feature vector length: 768
+8.44 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9124
+
+Feature vector length: 3072
+48.83 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9206
+
+Feature vector length: 192
+2.54 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.904
+
+
+# spatial_feat = True, RGB
+Feature vector length: 768
+12.07 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9026
+
+# HSV
+Feature vector length: 768
+10.87 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9237
+
+# LUV
+Feature vector length: 768
+8.85 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9276
+
+
+# YUV
+Feature vector length: 768
+8.42 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9285
+
+# YCrCb
+Feature vector length: 768
+8.93 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9372
+
+
+# hist_feat = True
+# RGB, 16
+Feature vector length: 48
+0.46 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9468
+
+# HSV
+Feature vector length: 48
+0.38 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9764
+
+# LUV
+Feature vector length: 48
+0.23 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9744
+
+# HLS
+Feature vector length: 48
+0.34 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9778
+
+# YUV
+Feature vector length: 48
+0.17 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9769
+
+# YCrCb
+Feature vector length: 48
+0.24 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9733
+
+# HLS, 32
+Feature vector length: 96
+0.97 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9733
+
+# HLS, 8
+Feature vector length: 24
+0.2 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9718
+
+hog_feat = True, HLS, cell_per_block = 2, 13, 8
+Feature vector length: 2548
+85.37 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.828
+
+13, 16
+Feature vector length: 468
+12.96 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.8753
+
+15, 16
+Feature vector length: 540
+14.73 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.8792
+
+16, 16
+Feature vector length: 576
+14.57 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.8916
+
+18, 16
+Feature vector length: 648
+17.01 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.8882
+
+24, 16
+Feature vector length: 864
+22.95 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.8865
+
+24, 24
+Feature vector length: 96
+2.4 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.8694
+
+
+# cell_per_block = 3, 16, 16
+Feature vector length: 576
+14.79 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.8961
+
+# cell_per_block = 4, 16, 16
+Feature vector length: 256
+7.03 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.8851
+
+
+# RGB, hog_channel = 'ALL'
+Using: 16 orientations 16 pixels per cell and 2 cells per block
+Feature vector length: 1728
+58.41 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9071
+
+# HSV
+Using: 16 orientations 16 pixels per cell and 2 cells per block
+Feature vector length: 1728
+51.79 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9251
+
+# LUV
+Using: 16 orientations 16 pixels per cell and 2 cells per block
+Feature vector length: 1728
+62.97 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9535
+
+# HLS
+Using: 16 orientations 16 pixels per cell and 2 cells per block
+Feature vector length: 1728
+63.44 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9296
+
+# YUV
+Using: 16 orientations 16 pixels per cell and 2 cells per block
+Feature vector length: 1728
+60.55 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9457
+
+# YCrCb
+Using: 16 orientations 16 pixels per cell and 2 cells per block
+Feature vector length: 1728
+75.98 Seconds to train ModelType.DecisionTree...
+Test Accuracy of ModelType.DecisionTree =  0.9496
+
+
+
+
