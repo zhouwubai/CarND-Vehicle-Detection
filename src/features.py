@@ -108,6 +108,6 @@ def single_img_features(img, color_space='RGB', spatial_size=(32, 32),
         # print('hog:', hog_feature)
         img_features.append(hog_feature)
 
-    img_features = np.concatenate(img_features)
+    img_features = np.concatenate(img_features).astype(np.float64)
     # print(img_features)
     return img_features

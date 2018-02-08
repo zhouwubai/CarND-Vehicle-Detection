@@ -14,6 +14,13 @@ Using: 16 orientations 16 pixels per cell and 2 cells per block
 Best score: 0.9535
 
 
+# combining them all
+Using: 16 orientations 16 pixels per cell and 2 cells per block
+Feature vector length: 2544
+81.07 Seconds to train ModelType.SVC...
+Test Accuracy of ModelType.SVC =  0.9975
+
+
 Recording the process of paramter tuning
 
 Feature vector length: 3364
