@@ -9,6 +9,7 @@ All color are relatvie good, except RGB
 hist_bin = 16
 Best score: 0.9778
 
+hog_feat = True
 # LUV
 Using: 16 orientations 16 pixels per cell and 2 cells per block
 Best score: 0.9535
@@ -203,6 +204,16 @@ Feature vector length: 1728
 75.98 Seconds to train ModelType.DecisionTree...
 Test Accuracy of ModelType.DecisionTree =  0.9496
 
+
+
+# Speed
+y_start_stop = [300, 720]
+0.0 Seconds to extract 2425 windows
+20.77 Seconds to search and identify 6 windows
+
+y_start_stop = [300, 680]
+0.0 Seconds to extract 2134 windows
+18.34 Seconds to search and identify 6 windows
 
 
 

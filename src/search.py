@@ -63,18 +63,19 @@ def search_windows(img, windows, clf, scaler, color_space='RGB',
     return on_windows
 
 
-def find_cars(img, ystart, ystop, scale, svc, X_scaler,
-              orient, pix_per_cell, cell_per_block, spatial_size, hist_bins):
+def fast_search_windows(img, clf, X_scaler,
+                        ystart, ystop, scale=1, color_space='RGB',
+                        spatial_size=(32, 32), hist_bins=32,
+                        orient=9, pix_per_cell=8, cell_per_block=2,
+                        window_size=64, cells_per_step=2):
     """
     Define a single function that can extract features using
     hog sub-sampling and make predictions
+
+    return hog_windows instead the image
     """
-
-    draw_img = np.copy(img)
-    img = img.astype(np.float32) / 255
-
     img_tosearch = img[ystart:ystop, :, :]
-    ctrans_tosearch = cvtColor(img_tosearch, conv='RGB2YCrCb')
+    ctrans_tosearch = cvtColor(img_tosearch, color_space=color_space)
     if scale != 1:
         imshape = ctrans_tosearch.shape
         ctrans_tosearch = cv2.resize(ctrans_tosearch,
@@ -90,21 +91,22 @@ def find_cars(img, ystart, ystop, scale, svc, X_scaler,
     nyblocks = (ch1.shape[0] // pix_per_cell) - cell_per_block + 1
     # nfeat_per_block = orient * cell_per_block**2
 
-    # 64 was the orginal sampling rate, with 8 cells and 8 pix per cell
-    window = 64
-    nblocks_per_window = (window // pix_per_cell) - cell_per_block + 1
-    cells_per_step = 2  # Instead of overlap, define how many cells to step
+    nblocks_per_window = (window_size // pix_per_cell) - cell_per_block + 1
+    # Instead of overlap, define how many cells to step
+    # the move from one block to next block is one cell step
+    # nxsteps, nysteps index the size of windows
     nxsteps = (nxblocks - nblocks_per_window) // cells_per_step + 1
     nysteps = (nyblocks - nblocks_per_window) // cells_per_step + 1
 
     # Compute individual channel HOG features for the entire image
-    hog1 = hog_features(ch1, orient, pix_per_cell, cell_per_block,
-                        feature_vec=False)
-    hog2 = hog_features(ch2, orient, pix_per_cell, cell_per_block,
-                        feature_vec=False)
-    hog3 = hog_features(ch3, orient, pix_per_cell, cell_per_block,
-                        feature_vec=False)
+    hog1 = hog_features2D(ch1, orient, pix_per_cell, cell_per_block,
+                          feature_vec=False)
+    hog2 = hog_features2D(ch2, orient, pix_per_cell, cell_per_block,
+                          feature_vec=False)
+    hog3 = hog_features2D(ch3, orient, pix_per_cell, cell_per_block,
+                          feature_vec=False)
 
+    on_windows = []
     for xb in range(nxsteps):
         for yb in range(nysteps):
             ypos = yb * cells_per_step
@@ -122,8 +124,8 @@ def find_cars(img, ystart, ystop, scale, svc, X_scaler,
             ytop = ypos * pix_per_cell
 
             # Extract the image patch
-            subimg = cv2.resize(ctrans_tosearch[ytop:ytop + window,
-                                                xleft:xleft + window],
+            subimg = cv2.resize(ctrans_tosearch[ytop:ytop + window_size,
+                                                xleft:xleft + window_size],
                                 (64, 64))
 
             # Get color features
@@ -140,10 +142,9 @@ def find_cars(img, ystart, ystop, scale, svc, X_scaler,
             if test_prediction == 1:
                 xbox_left = np.int(xleft * scale)
                 ytop_draw = np.int(ytop * scale)
-                win_draw = np.int(window * scale)
-                cv2.rectangle(draw_img, (xbox_left, ytop_draw + ystart),
-                              (xbox_left + win_draw,
-                               ytop_draw + win_draw + ystart),
-                              (0, 0, 255), 6)
+                win_draw = np.int(window_size * scale)
+                on_windows.append([(xbox_left, ytop_draw + ystart),
+                                   (xbox_left + win_draw,
+                                    ytop_draw + win_draw + ystart)])
 
-    return draw_img
+    return on_windows
