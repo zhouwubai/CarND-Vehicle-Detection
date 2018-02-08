@@ -37,12 +37,14 @@ def hog_features2D(img, orient=9, pix_per_cell=8, cell_per_block=2,
             hog(img, orientations=orient,
                 pixels_per_cell=(pix_per_cell, pix_per_cell),
                 cells_per_block=(cell_per_block, cell_per_block),
+                block_norm='L2-Hys',
                 visualise=vis, feature_vector=feature_vec)
         return features, hog_image
     else:
         features = hog(img, orientations=orient,
                        pixels_per_cell=(pix_per_cell, pix_per_cell),
                        cells_per_block=(cell_per_block, cell_per_block),
+                       block_norm='L2-Hys',
                        visualise=vis, feature_vector=feature_vec)
         return features
 

@@ -113,7 +113,7 @@ hot_windows = search_windows(image, windows,
                              spatial_feat=spatial_feat,
                              hist_feat=hist_feat, hog_feat=hog_feat)
 
-draw_heatmap = True
+draw_heatmap = False
 if draw_heatmap:
     heatmap = np.zeros(draw_image.shape[:2])
     heatmap = add_heat(heatmap, hot_windows)
