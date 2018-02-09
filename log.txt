@@ -218,3 +218,19 @@ y_start_stop = [300, 680]
 Start testing
 2.59 Seconds to search and identify 1 windows
 
+
+
+Training model...
+Model: ModelType.SVC, Color space: HLS
+Using spatial features
+spatial_size=(16, 16)
+Using histogram features
+hist_bins=16
+Using hog features
+orient=16
+pix_per_cell=16
+cell_per_block=2
+hog_channel=ALL
+
+89.76 Seconds to train ModelType.SVC...
+Test Accuracy of ModelType.SVC = 0.9941

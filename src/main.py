@@ -86,7 +86,7 @@ if load_model:
     print(detector.print_params())
 
 print('Start testing')
-test_img = root + 'test_images/test1.jpg'
+test_img = root + 'test_images/test6.jpg'
 image = mpimg.imread(test_img)
 draw_image = np.copy(image)
 
@@ -98,8 +98,8 @@ draw_image = np.copy(image)
 
 ystart = 300
 ystop = 680
-scale = [1.5, 2, 2.5, 3]
-cells_per_step = [2, 2, 1, 1]
+scale = [1, 2, 3]
+cells_per_step = [1, 1, 1]
 
 t = time.time()
 hot_windows = detector.search_windows(image, ystart=ystart, ystop=ystop,
@@ -112,7 +112,7 @@ draw_heatmap = True
 if draw_heatmap:
     heatmap = np.zeros(draw_image.shape[:2])
     heatmap = add_heat(heatmap, hot_windows)
-    heatmap = apply_threshold(heatmap, 2)
+    heatmap = apply_threshold(heatmap, 1.5)
     labels = label(heatmap)
     window_img = draw_labeled_bboxes(draw_image, labels)
 else:
@@ -120,4 +120,5 @@ else:
                             color=(0, 0, 255), thick=6)
 
 plt.imshow(window_img)
-plt.show()
+plt.savefig('../test_images/test6_labeled.jpg')
+# plt.show()
