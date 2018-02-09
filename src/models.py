@@ -81,20 +81,25 @@ class CarDetector(object):
                                 hist_feat=self.hist_feat,
                                 hog_feat=self.hog_feat)
 
-    def search_windows(self, img, ystart, ystop,
+    def search_windows(self, img, y_start_stop,
                        scale, cells_per_step):
+        if not isinstance(y_start_stop, list):
+            y_start_stop = [y_start_stop]
         if not isinstance(scale, list):
             scale = [scale]
         if not isinstance(cells_per_step, list):
             cells_per_step = [cells_per_step]
 
-        min_len = min(len(scale), len(cells_per_step))
-        scale, cells_per_step = scale[:min_len], cells_per_step[:min_len]
+        min_len = min(len(y_start_stop), len(scale), len(cells_per_step))
+        y_start_stop = y_start_stop[:min_len]
+        scale = scale[:min_len]
+        cells_per_step = cells_per_step[:min_len]
+
         on_windows = []
-        for s, c in zip(scale, cells_per_step):
+        for y_ss, s, c in zip(y_start_stop, scale, cells_per_step):
             windows = fast_search_windows(
                 img=img, clf=self.model, X_scaler=self.X_scaler,
-                ystart=ystart, ystop=ystop, scale=s,
+                ystart=y_ss[0], ystop=y_ss[1], scale=s,
                 color_space=self.color_space,
                 spatial_size=self.spatial_size,
                 hist_bins=self.hist_bins,
