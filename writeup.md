@@ -76,7 +76,7 @@ Test Accuracy of ModelType.DecisionTree =  0.9496
 ```
 
 Here is an example using the `Gray` color space and HOG parameters of `orientations=8`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
-<img src="./test_images/test1_hog.jpg" alt="Drawing" width="300"/>
+<img src="./test_images/test1_hog.jpg" alt="Drawing" width="600"/>
 
 Code on hog features of 3D image can be found in line 52 of the file called [`features.py`](./src/features.py)
 ```python
@@ -152,7 +152,9 @@ cells_per_step = [1, 1, 1]
 
 ```
 
-<img src="./test_images/test1_multi.jpg" alt="Drawing" width="300"/><img src="./test_images/test3_multi.jpg" alt="Drawing" width="300"/><img src="./test_images/test4_multi.jpg" alt="Drawing" width="300"/>
+<img src="./test_images/test1_multi.jpg" alt="Drawing" width="300"/>
+<img src="./test_images/test3_multi.jpg" alt="Drawing" width="300"/>
+<img src="./test_images/test4_multi.jpg" alt="Drawing" width="300"/>
 
 Code is in the file called [`P5.py`](./src/P5.py)
 
