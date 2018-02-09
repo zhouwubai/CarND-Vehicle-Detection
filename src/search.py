@@ -98,8 +98,6 @@ def fast_search_windows(img, clf, X_scaler,
     # nxsteps, nysteps index the size of windows
     nxsteps = (nxblocks - nblocks_per_window) // cells_per_step + 1
     nysteps = (nyblocks - nblocks_per_window) // cells_per_step + 1
-    print(img.shape, img_tosearch.shape,
-          nxblocks, nyblocks, nblocks_per_window, nxsteps, nysteps)
     # Compute individual channel HOG features for the entire image
     hog1 = hog_features2D(ch1, orient, pix_per_cell, cell_per_block,
                           feature_vec=False)

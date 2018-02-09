@@ -5,6 +5,7 @@ from sklearn import naive_bayes
 from sklearn.preprocessing import StandardScaler
 
 from features import *
+from search import fast_search_windows
 
 
 class ModelType(Enum):
@@ -79,6 +80,31 @@ class CarDetector(object):
                                 spatial_feat=self.spatial_feat,
                                 hist_feat=self.hist_feat,
                                 hog_feat=self.hog_feat)
+
+    def search_windows(self, img, ystart, ystop,
+                       scale, cells_per_step):
+        if not isinstance(scale, list):
+            scale = [scale]
+        if not isinstance(cells_per_step, list):
+            cells_per_step = [cells_per_step]
+
+        min_len = min(len(scale), len(cells_per_step))
+        scale, cells_per_step = scale[:min_len], cells_per_step[:min_len]
+        on_windows = []
+        for s, c in zip(scale, cells_per_step):
+            windows = fast_search_windows(
+                img=img, clf=self.model, X_scaler=self.X_scaler,
+                ystart=ystart, ystop=ystop, scale=s,
+                color_space=self.color_space,
+                spatial_size=self.spatial_size,
+                hist_bins=self.hist_bins,
+                orient=self.orient,
+                pix_per_cell=self.pix_per_cell,
+                cell_per_block=self.cell_per_block,
+                cells_per_step=c
+            )
+            on_windows.extend(windows)
+        return on_windows
 
     def print_params(self):
         param = 'Model: {}, Color space: {}\n'.format(self.model_type,
