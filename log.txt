@@ -215,5 +215,6 @@ y_start_stop = [300, 680]
 0.0 Seconds to extract 2134 windows
 18.34 Seconds to search and identify 6 windows
 
-
+Start testing
+2.59 Seconds to search and identify 1 windows
 

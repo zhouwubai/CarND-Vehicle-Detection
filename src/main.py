@@ -24,7 +24,7 @@ spatial_feat = True  # Spatial features on or off, None < 0, 768, 0.89
 spatial_size = (16, 16)  # Spatial binning dimensions
 hist_feat = True  # Histogram features on or off, 48, 0.9654
 hist_bins = 16  # Number of histogram bins
-hog_feat = True  # HOG features on or off, 2548, 0.885
+hog_feat = True  # HOG features on or off, 1728, 0.885
 orient = 16   # HOG orientations
 pix_per_cell = 16  # HOG pixels per cell
 cell_per_block = 2  # HOG cells per block
@@ -83,6 +83,7 @@ if not load_model:
 if load_model:
     print('Loading model...')
     detector = pickle.load(open('car_model.pkl', 'rb'))
+    print(detector.print_params())
 
 print('Start testing')
 test_img = root + 'test_images/test1.jpg'
@@ -96,25 +97,23 @@ draw_image = np.copy(image)
 # image = image.astype(np.float32)/255
 x_start_stop = [None, None]  # Min and max in x to search in slide_window()
 y_start_stop = [300, 680]  # Min and max in y to search in slide_window()
+xy_window = (128, 128)
+xy_overlap = (0.6, 0.6)
+
+ystart = 300
+ystop = 680
+scale = 2
+cells_per_step = 1
 
 t = time.time()
-windows = slide_window(image, x_start_stop=x_start_stop,
-                       y_start_stop=y_start_stop,
-                       xy_window=(128, 128), xy_overlap=(0.6, 0.6))
-t2 = time.time()
-print(round(t2 - t, 2),
-      'Seconds to extract {} windows'.format(len(windows)))
-
-t = time.time()
-hot_windows = search_windows(image, windows,
-                             detector.model, detector.X_scaler,
-                             color_space=color_space,
-                             spatial_size=spatial_size, hist_bins=hist_bins,
-                             orient=orient, pix_per_cell=pix_per_cell,
-                             cell_per_block=cell_per_block,
-                             hog_channel=hog_channel,
-                             spatial_feat=spatial_feat,
-                             hist_feat=hist_feat, hog_feat=hog_feat)
+hot_windows = fast_search_windows(image, detector.model, detector.X_scaler,
+                                  ystart=ystart, ystop=ystop, scale=scale,
+                                  color_space=color_space,
+                                  spatial_size=spatial_size,
+                                  hist_bins=hist_bins,
+                                  orient=orient, pix_per_cell=pix_per_cell,
+                                  cell_per_block=cell_per_block,
+                                  cells_per_step=cells_per_step)
 t2 = time.time()
 print(round(t2 - t, 2),
       'Seconds to search and identify {} windows'.format(len(hot_windows)))

@@ -67,7 +67,7 @@ def fast_search_windows(img, clf, X_scaler,
                         ystart, ystop, scale=1, color_space='RGB',
                         spatial_size=(32, 32), hist_bins=32,
                         orient=9, pix_per_cell=8, cell_per_block=2,
-                        window_size=64, cells_per_step=2):
+                        cells_per_step=2):
     """
     Define a single function that can extract features using
     hog sub-sampling and make predictions
@@ -91,13 +91,15 @@ def fast_search_windows(img, clf, X_scaler,
     nyblocks = (ch1.shape[0] // pix_per_cell) - cell_per_block + 1
     # nfeat_per_block = orient * cell_per_block**2
 
+    window_size = 64
     nblocks_per_window = (window_size // pix_per_cell) - cell_per_block + 1
     # Instead of overlap, define how many cells to step
     # the move from one block to next block is one cell step
     # nxsteps, nysteps index the size of windows
     nxsteps = (nxblocks - nblocks_per_window) // cells_per_step + 1
     nysteps = (nyblocks - nblocks_per_window) // cells_per_step + 1
-
+    print(img.shape, img_tosearch.shape,
+          nxblocks, nyblocks, nblocks_per_window, nxsteps, nysteps)
     # Compute individual channel HOG features for the entire image
     hog1 = hog_features2D(ch1, orient, pix_per_cell, cell_per_block,
                           feature_vec=False)
@@ -137,7 +139,7 @@ def fast_search_windows(img, clf, X_scaler,
                 np.hstack((spatial_features,
                            hist_features,
                            hog_features)).reshape(1, -1))
-            test_prediction = svc.predict(test_features)
+            test_prediction = clf.predict(test_features)
 
             if test_prediction == 1:
                 xbox_left = np.int(xleft * scale)
