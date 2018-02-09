@@ -10,6 +10,7 @@ from search import fast_search_windows
 
 class ModelType(Enum):
     SVC = 'SVC'
+    LinearSVC = 'LinearSVC'
     GuassianNB = 'GuassianNB'
     DecisionTree = 'DecisionTree'
 
@@ -17,6 +18,8 @@ class ModelType(Enum):
 def get_classifier(name=ModelType.SVC, C=1.0, kernel='rbf'):
     if name == ModelType.SVC:
         return svm.SVC(C=C, kernel=kernel)
+    elif name == ModelType.LinearSVC:
+        return svm.LinearSVC(C=C)
     elif name == ModelType.GuassianNB:
         return naive_bayes.GaussianNB()
     elif name == ModelType.DecisionTree:

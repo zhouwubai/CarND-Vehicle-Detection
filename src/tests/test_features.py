@@ -4,6 +4,7 @@ import matplotlib.image as mpimg
 
 from features import *
 from constants import *
+from utils import cvtColor
 
 
 def test_color_hist(f_path):
@@ -46,7 +47,7 @@ def test_bin_spatial(f_path):
 def test_hog_features(f_path):
     image = mpimg.imread(f_path)
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-    orient = 9
+    orient = 8
     pix_per_cell = 8
     cell_per_block = 2
     # call our functions with vis = True
@@ -114,9 +115,9 @@ if __name__ == '__main__':
     f_path = root + 'test_images/test1.jpg'
     png_path = root + 'test_images/image0550.png'
     # test_color_hist(f_path)
-    # test_bin_spatial(png_path)
+    test_bin_spatial(png_path)
     # test_hog_features(f_path)
     # test_single_img_features(f_path)
-    test_extract_features([png_path])
+    # test_extract_features([png_path])
 
 

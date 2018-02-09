@@ -22,7 +22,7 @@ orient = 16   # HOG orientations
 pix_per_cell = 16  # HOG pixels per cell
 cell_per_block = 2  # HOG cells per block
 hog_channel = 'ALL'  # Can be 0, 1, 2, or "ALL"
-name = ModelType.SVC
+name = ModelType.DecisionTree
 
 print('Loading model...')
 detector = pickle.load(open('car_model_{}.pkl'.format(name), 'rb'))
@@ -46,8 +46,8 @@ def pipeline(image, detector=detector):
     return window_img
 
 
-white_output = '../test_video_labeled.mp4'
-clip1 = VideoFileClip("../test_video.mp4")
+white_output = '../project_video_labeled.mp4'
+clip1 = VideoFileClip("../project_video.mp4")
 white_clip = clip1.fl_image(pipeline)
 white_clip.write_videofile(white_output, audio=False)
 
