@@ -5,11 +5,11 @@ import glob
 import time
 import pickle
 
-from search import *
-from features import *
+from car.search import *
+from car.features import *
+from car.models import *
 from utils import *
 from constants import *
-from models import *
 
 
 from sklearn.model_selection import train_test_split
@@ -35,7 +35,7 @@ load_model = False
 if not load_model:
     print('Training model...')
     # Read in cars and notcars
-    data_root = root + 'data/'
+    data_root = ROOT + 'data/car/'
     images = glob.glob(data_root + '**/*.png', recursive=True)
     cars = []
     notcars = []
@@ -78,16 +78,19 @@ if not load_model:
     print('Test Accuracy of {} = {}'.format(detector.model_type,
                                             round(score, 4)))
     # Check the prediction time for a single sample
-    pickle.dump(detector, open('car_model_{}.pkl'.format(name), 'wb'))
+    model_output = ROOT + 'models/car_model_{}.pkl'.format(name)
+    print('Storing model...')
+    pickle.dump(detector, open(model_output, 'wb'))
 
 if load_model:
+    model_input = ROOT + 'models/car_model_{}.pkl'.format(name)
     print('Loading model...')
     detector = pickle.load(open('car_model_{}.pkl'.format(name), 'rb'))
     print(detector.print_params())
 
 print('Start testing')
 test_img = 'test3'
-image = mpimg.imread(root + 'test_images/{}.jpg'.format(test_img))
+image = mpimg.imread(ROOT + 'test_images/car/{}.jpg'.format(test_img))
 draw_image = np.copy(image)
 
 #
@@ -121,5 +124,5 @@ else:
                             color=(0, 0, 255), thick=6)
 
 plt.imshow(window_img)
-plt.savefig(root + 'test_images/{}_labeled.jpg'.format(test_img))
+# plt.savefig(ROOT + 'output_images/car/{}_labeled.jpg'.format(test_img))
 plt.show()

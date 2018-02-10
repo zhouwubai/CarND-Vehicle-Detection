@@ -4,8 +4,8 @@ from sklearn import tree
 from sklearn import naive_bayes
 from sklearn.preprocessing import StandardScaler
 
-from features import *
-from search import fast_search_windows
+from car.features import *
+from car.search import fast_search_windows
 
 
 class ModelType(Enum):

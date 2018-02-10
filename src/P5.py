@@ -2,11 +2,11 @@ import numpy as np
 import pickle
 import collections
 
-from search import *
-from features import *
+from car.search import *
+from car.features import *
+from car.models import *
 from utils import *
 from constants import *
-from models import *
 
 from scipy.ndimage.measurements import label
 from moviepy.editor import VideoFileClip
@@ -60,8 +60,9 @@ class CarDectorPiper(object):
 if __name__ == '__main__':
 
     name = ModelType.LinearSVC
-    print('Loading model...')
-    detector = pickle.load(open('car_model_{}.pkl'.format(name), 'rb'))
+    model_path = ROOT + 'models/car_model_{}.pkl'.format(name)
+    print('Loading model in {}...'.format(model_path))
+    detector = pickle.load(open(model_path, 'rb'))
     print(detector.print_params())
 
     keep_n = 6
@@ -72,9 +73,10 @@ if __name__ == '__main__':
                            threshold=threshold,
                            draw_heatmap=draw_heatmap)
 
-    white_output = '../project_video_labeled.mp4'
-    clip1 = VideoFileClip("../project_video.mp4")
+    video_input = ROOT + 'video/project_video.mp4'
+    video_output = ROOT + 'video/project_video_labeled_car.mp4'
+    clip1 = VideoFileClip(video_input)
     white_clip = clip1.fl_image(piper.process)
-    white_clip.write_videofile(white_output, audio=False)
+    white_clip.write_videofile(video_output, audio=False)
 
 
