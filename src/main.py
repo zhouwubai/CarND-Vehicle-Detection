@@ -29,8 +29,8 @@ orient = 16   # HOG orientations
 pix_per_cell = 16  # HOG pixels per cell
 cell_per_block = 2  # HOG cells per block
 hog_channel = 'ALL'  # Can be 0, 1, 2, or "ALL"
-name = ModelType.SVC
-load_model = True
+name = ModelType.LinearSVC
+load_model = False
 
 if not load_model:
     print('Training model...')
@@ -109,7 +109,7 @@ hot_windows = detector.search_windows(image, y_start_stop=y_start_stop,
 t2 = time.time()
 print(round(t2 - t, 2),
       'Seconds to search and identify {} windows'.format(len(hot_windows)))
-draw_heatmap = True
+draw_heatmap = False
 if draw_heatmap:
     heatmap = np.zeros(draw_image.shape[:2])
     heatmap = add_heat(heatmap, hot_windows)

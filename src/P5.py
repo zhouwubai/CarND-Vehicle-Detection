@@ -1,5 +1,6 @@
 import numpy as np
 import pickle
+import collections
 
 from search import *
 from features import *
@@ -11,44 +12,69 @@ from scipy.ndimage.measurements import label
 from moviepy.editor import VideoFileClip
 
 
-# image shape (64, 64, 3)
-color_space = 'HLS'  # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
-spatial_feat = True  # Spatial features on or off, None < 0, 768, 0.89
-spatial_size = (16, 16)  # Spatial binning dimensions
-hist_feat = True  # Histogram features on or off, 48, 0.9654
-hist_bins = 16  # Number of histogram bins
-hog_feat = True  # HOG features on or off, 1728, 0.885
-orient = 16   # HOG orientations
-pix_per_cell = 16  # HOG pixels per cell
-cell_per_block = 2  # HOG cells per block
-hog_channel = 'ALL'  # Can be 0, 1, 2, or "ALL"
-name = ModelType.DecisionTree
+class CarDectorPiper(object):
 
-print('Loading model...')
-detector = pickle.load(open('car_model_{}.pkl'.format(name), 'rb'))
-print(detector.print_params())
+    def __init__(self, detector, keep_n=6,
+                 threshold=10, draw_heatmap=True,
+                 cthreshold=25):
+        self.detector = detector
+        self.windows = collections.deque(maxlen=keep_n)
+        self.threshold = threshold
+        self.cthreshold = cthreshold
+        self.draw_heatmap = draw_heatmap
+
+    def draw_heatmap_labels(self, shape):
+        all_windows = []
+        for w in self.windows:
+            all_windows.extend(w)
+
+        heatmap = np.zeros(shape)
+        heatmap = add_heat(heatmap, all_windows)
+        heatmap = apply_threshold(heatmap, self.threshold)
+        labels = label(heatmap)
+        return labels, heatmap
+
+    def process(self, image):
+        draw_image = np.copy(image)
+        y_start_stop = [(350, 500), (400, 550), (350, 650)]
+        scale = [1, 2, 3]
+        cells_per_step = [1, 1, 1]
+
+        hot_windows =\
+            self.detector.search_windows(image,
+                                         y_start_stop=y_start_stop,
+                                         scale=scale,
+                                         cells_per_step=cells_per_step)
+        self.windows.append(hot_windows)
+
+        if self.draw_heatmap:
+            labels, heatmap = self.draw_heatmap_labels(draw_image.shape[:2])
+            window_img = draw_labeled_bboxes(draw_image, labels,
+                                             heatmap, self.cthreshold)
+        else:
+            window_img = draw_boxes(draw_image, hot_windows,
+                                    color=(0, 0, 255), thick=6)
+        return window_img
 
 
-def pipeline(image, detector=detector):
-    draw_image = np.copy(image)
-    y_start_stop = [(350, 500), (400, 550), (350, 650)]
-    scale = [1, 2, 3]
-    cells_per_step = [1, 1, 1]
+if __name__ == '__main__':
 
-    hot_windows = detector.search_windows(image, y_start_stop=y_start_stop,
-                                          scale=scale,
-                                          cells_per_step=cells_per_step)
-    heatmap = np.zeros(draw_image.shape[:2])
-    heatmap = add_heat(heatmap, hot_windows)
-    heatmap = apply_threshold(heatmap, 2)
-    labels = label(heatmap)
-    window_img = draw_labeled_bboxes(draw_image, labels)
-    return window_img
+    name = ModelType.LinearSVC
+    print('Loading model...')
+    detector = pickle.load(open('car_model_{}.pkl'.format(name), 'rb'))
+    print(detector.print_params())
 
+    keep_n = 6
+    threshold = 10
+    draw_heatmap = True
+    piper = CarDectorPiper(detector,
+                           keep_n=keep_n,
+                           threshold=threshold,
+                           draw_heatmap=draw_heatmap)
 
-white_output = '../project_video_labeled.mp4'
-clip1 = VideoFileClip("../project_video.mp4")
-white_clip = clip1.fl_image(pipeline)
-white_clip.write_videofile(white_output, audio=False)
+    white_output = '../project_video_labeled.mp4'
+    clip1 = VideoFileClip("../project_video.mp4")
+    white_clip = clip1.fl_image(piper.process)
+    white_clip.write_videofile(white_output, audio=False)
 
 

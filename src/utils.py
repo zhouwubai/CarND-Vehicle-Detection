@@ -25,12 +25,12 @@ def cvtColor(img, color_space='RGB'):
     return feature_image
 
 
-def add_heat(heatmap, bbox_list):
+def add_heat(heatmap, bbox_list, value=1):
     # Iterate through list of bboxes
     for box in bbox_list:
         # Add += 1 for all pixels inside each bbox
         # Assuming each "box" takes the form ((x1, y1), (x2, y2))
-        heatmap[box[0][1]:box[1][1], box[0][0]:box[1][0]] += 1
+        heatmap[box[0][1]:box[1][1], box[0][0]:box[1][0]] += value
 
     # Return updated heatmap
     return heatmap
@@ -43,7 +43,7 @@ def apply_threshold(heatmap, threshold):
     return heatmap
 
 
-def draw_labeled_bboxes(img, labels):
+def draw_labeled_bboxes(img, labels, heatmap=None, threshold=25):
     # Iterate through all detected cars
     for car_number in range(1, labels[1] + 1):
         # Find pixels with each car_number label value
@@ -55,7 +55,13 @@ def draw_labeled_bboxes(img, labels):
         bbox = ((np.min(nonzerox), np.min(nonzeroy)),
                 (np.max(nonzerox), np.max(nonzeroy)))
         # Draw the box on the image
-        cv2.rectangle(img, bbox[0], bbox[1], (0, 0, 255), 6)
+        if heatmap is not None:
+            max_val = np.max(heatmap[bbox[0][1]:bbox[1][1],
+                                     bbox[0][0]:bbox[1][0]])
+            if max_val >= threshold:
+                cv2.rectangle(img, bbox[0], bbox[1], (0, 0, 255), 6)
+        else:
+            cv2.rectangle(img, bbox[0], bbox[1], (0, 0, 255), 6)
     # Return the image
     return img
 

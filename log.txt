@@ -234,3 +234,9 @@ hog_channel=ALL
 
 89.76 Seconds to train ModelType.SVC...
 Test Accuracy of ModelType.SVC = 0.9941
+
+
+8.45 Seconds to train ModelType.LinearSVC...
+Test Accuracy of ModelType.LinearSVC = 0.984
+Start testing
+0.45 Seconds to search and identify 8 windows

@@ -36,9 +36,7 @@ def test_color_hist(f_path):
 def test_bin_spatial(f_path):
     image = mpimg.imread(f_path)
     bin_features = bin_spatial(image)
-    # print(bin_features.shape)
     np.set_printoptions(threshold=np.inf)
-    print(str(bin_features))
     plt.plot(bin_features)
     plt.title('Spatially Binned Features')
     plt.show()

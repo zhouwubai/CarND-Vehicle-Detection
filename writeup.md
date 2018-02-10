@@ -132,6 +132,9 @@ accuracy can get higher than 99%, and decision tree is around 97%. But I also re
 computational expensively. For single image, even after optization by extracting hog feature once,
 it needs around 3s for three different window scale, however, for decision tree it only needs 0.5s.
 
+Then I decide to go for linear SVC, it has accuracy as good as 98.4%,
+but can be as efficient as Decision Tree in prediction/evaluation
+
 ### Sliding Window Search
 
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
@@ -170,21 +173,13 @@ Here's a [link to my video result](./project_video_labeled.mp4)
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
 I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.
-I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.
+I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.
+I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.
 
-Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
+I further filter the false positives by recording the center of blob (heatmap center with maximum value, car detected),
+and remove those change windows that heatmap center less than a value
 
-### Here are six frames and their corresponding heatmaps:
-
-![alt text][image5]
-
-### Here is the output of `scipy.ndimage.measurements.label()` on the integrated heatmap from all six frames:
-![alt text][image6]
-
-### Here the resulting bounding boxes are drawn onto the last frame in the series:
-![alt text][image7]
-
-
+Please check Code is in the file called [`P5.py`](./src/P5.py) for all details
 
 ---
 
@@ -192,5 +187,19 @@ Here's an example result showing the heatmap from a series of frames of video, t
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.
+* It is difficult to decide the cells_per_step/overlap ratio in traditional window search. Though it is ok to set it as smaller as possible (opposite for overlap ratio), but computation time increase expontially
+    * One approach to furtuer improve efficiency is that we can use windows from last frame as starting points and do some search around those areas
+* It might fail if car moving too fast relatively
+    * For some two direction lane, this might happens for the car from other lane
+    * Also for car that going different direction at ramp
+* It might fail if weather is too bad
+* It might fail if camera is shaking too much such as the road is bumping
+* It might merge several cars into one
+    * Try to get heat center and recording its size and smooth the size
+* The bounding box is too large/small sometimes
+    * try to record the center and smooth the size
+* Computation is still too slow
+    * Using C++ maybe
+
+
 
