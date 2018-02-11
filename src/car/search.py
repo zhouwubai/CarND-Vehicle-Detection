@@ -1,7 +1,11 @@
 import cv2
 import numpy as np
-from car.features import *
-from utils import *
+from car.features import (
+    color_hist, bin_spatial,
+    hog_features2D,
+    single_img_features,
+)
+from utils import cvtColor
 
 
 def slide_window(img, x_start_stop=(None, None), y_start_stop=(None, None),

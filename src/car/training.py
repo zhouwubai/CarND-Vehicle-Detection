@@ -5,12 +5,12 @@ import glob
 import time
 import pickle
 
-from car.search import *
-from car.features import *
-from car.models import *
-from utils import *
-from constants import *
-
+from car.models import ModelType, CarDetector
+from utils import (
+    add_heat, apply_threshold,
+    draw_labeled_bboxes, draw_boxes
+)
+from constants import ROOT
 
 from sklearn.model_selection import train_test_split
 from scipy.ndimage.measurements import label

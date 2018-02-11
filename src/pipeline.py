@@ -2,11 +2,12 @@ import numpy as np
 import pickle
 import collections
 
-from car.search import *
-from car.features import *
-from car.models import *
-from utils import *
-from constants import *
+from car.models import ModelType
+from utils import (
+    add_heat, apply_threshold,
+    draw_labeled_bboxes, draw_boxes
+)
+from constants import ROOT
 
 from scipy.ndimage.measurements import label
 from moviepy.editor import VideoFileClip

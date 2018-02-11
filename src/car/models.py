@@ -4,7 +4,7 @@ from sklearn import tree
 from sklearn import naive_bayes
 from sklearn.preprocessing import StandardScaler
 
-from car.features import *
+from car.features import extract_features
 from car.search import fast_search_windows
 
 
@@ -130,4 +130,5 @@ class CarDetector(object):
                      'cell_per_block={}\n'.format(self.cell_per_block) +\
                      'hog_channel={}\n'.format(self.hog_channel)
         return param
+
 
