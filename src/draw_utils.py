@@ -47,9 +47,9 @@ def drawImage(images, savefile=None):
     Draw binary images, assuming N%3 = 0
     """
     N = len(images)
-    row = int(N/3)
-    fig, axis = plt.subplots(row, 3, figsize=(20, 4*row))
-    fig.subplots_adjust(hspace = .2, wspace=.001)
+    row = int(N / 3)
+    fig, axis = plt.subplots(row, 3, figsize=(20, 4 * row))
+    fig.subplots_adjust(hspace=.2, wspace=.001)
     axis = axis.ravel()
     for i in range(N):
         axis[i].imshow(images[i])
@@ -66,9 +66,9 @@ def drawBinaryImage(images, n_col=3, title=None, savefile=None):
     if title:
         assert len(images) == len(title)
     N = len(images)
-    row = int(N/n_col)
-    fig, axis = plt.subplots(row, n_col, figsize=(7*n_col, 4*row))
-    fig.subplots_adjust(hspace = .2, wspace=.001)
+    row = int(N / n_col)
+    fig, axis = plt.subplots(row, n_col, figsize=(7 * n_col, 4 * row))
+    fig.subplots_adjust(hspace=.2, wspace=.001)
     axis = axis.ravel()
     for i in range(N):
         axis[i].imshow(images[i], cmap='gray')
@@ -86,13 +86,15 @@ def saveFigures(images, filenames):
     for image, filename in zip(images, filenames):
         cv2.imwrite(filename, np.dstack((image, image, image)) * 255)
 
-def drawLines(left_fit, right_fit, ymax=720):
-    ploty = np.linspace(0, ymax-1, ymax)
-    left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
-    right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
 
-    plt.plot(left_fitx, ploty, color='yellow')
-    plt.plot(right_fitx, ploty, color='yellow')
+def drawLines(left_fit, right_fit, ymax=720):
+    ploty = np.linspace(0, ymax - 1, ymax)
+    l_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
+    r_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
+
+    plt.plot(l_fitx, ploty, color='yellow')
+    plt.plot(r_fitx, ploty, color='yellow')
     plt.xlim(0, 1280)
     plt.ylim(720, 0)
     plt.show()
+

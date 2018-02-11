@@ -2,8 +2,7 @@ import numpy as np
 import cv2
 import pickle
 
-
-from matplotlib import mpimg
+import matplotlib.image as mpimg
 
 
 class Calibrator(object):
@@ -15,11 +14,11 @@ class Calibrator(object):
             self.load_params(path)
 
     def load_params(self, path):
-        self.mtx, self.dist = pickle.load(open(file, 'rb'))
+        self.mtx, self.dist = pickle.load(open(path, 'rb'))
 
     def save_params(self, path):
         pickle.dump((self.mtx, self.dist),
-                    open(file, 'wb'))
+                    open(path, 'wb'))
 
     def get_params(self):
         return self.mtx, self.dist
@@ -77,14 +76,14 @@ class Unwarper(object):
         self.M = M
         self.inv_M = inv_M
         if path is not None:
-            self.load_params()
+            self.load_params(path)
 
     def load_params(self, path):
-        self.M, self.inv_M = pickle.load(open(file, 'rb'))
+        self.M, self.inv_M = pickle.load(open(path, 'rb'))
 
     def save_params(self, path):
         pickle.dump((self.M, self.inv_M),
-                    open(file, 'wb'))
+                    open(path, 'wb'))
 
     def get_params(self):
         return self.M, self.inv_M

@@ -76,7 +76,7 @@ class ColorThreshold(BaseThreshold):
             return image[:, :, self.channel]
         elif self.cmap == 'HLS':
             HLS = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
-            return HLS[:, :, self.idx]
+            return HLS[:, :, self.channel]
         else:
             return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 

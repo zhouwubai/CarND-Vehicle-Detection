@@ -10,6 +10,7 @@ from line.search import (
     evaluate,
     deviate_of_center
 )
+from line.threshold import majority_vote
 
 
 # Define a class to receive the characteristics of each line detection
@@ -94,9 +95,12 @@ class Lane():
 
 
 class Road():
-    def __init__(self, keep_n=10, alpha=0.8,
+    def __init__(self, calibrator=None, unwarper=None,
+                 keep_n=10, alpha=0.8,
                  ym_per_pix=28 / 720, xm_per_pix=3.7 / 650):
 
+        self.calibrator = calibrator
+        self.unwarper = unwarper
         self.alpha = alpha
         self.ym_per_pix = ym_per_pix
         self.xm_per_pix = xm_per_pix
@@ -188,10 +192,13 @@ class Road():
 
     def process_image(self, image):
         # step one: undistorted image
+        thresh_names, n_vote = ['S', 'R', 'X'], 2
         shape = image.shape
         img_size = (shape[1], shape[0])
-        undistorted = cv2.undistort(image, mtx, dist, None, mtx)
-        unwarped = cv2.warpPerspective(undistorted, M, img_size)
+        undistorted = cv2.undistort(image, self.calibrator.mtx,
+                                    self.calibrator.dist, None,
+                                    self.calibrator.mtx)
+        unwarped = cv2.warpPerspective(undistorted, self.unwarper.M, img_size)
         binary_warped = majority_vote(unwarped, thresh_names, n_vote)
 
         self.images.append(unwarped)
@@ -236,7 +243,8 @@ class Road():
 
         # Draw the lane onto the warped blank image
         cv2.fillPoly(color_warp, np.int_([pts]), (0, 255, 0))
-        newwarp = cv2.warpPerspective(color_warp, invM, img_size)
+        newwarp = cv2.warpPerspective(color_warp,
+                                      self.unwarper.inv_M, img_size)
 
         # get the curvature and put text
         y_eval = np.max(ploty)
