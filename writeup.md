@@ -29,13 +29,13 @@ You're reading it!
 
 #### 1. Explain how (and identify where in your code) you extracted HOG features from the training images.
 
-The code for this step is contained in the in lines 32 of the file called [`features.py`](./src/features.py).
+The code for this step is contained in the in lines 32 of the file called [`features.py`](./src/car/features.py).
 
 I started by reading in all the `vehicle` and `non-vehicle` images.
 
 I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).
 I tuning the parameters by training the classifier on hog features alone to see its accuracy,
-following is some log example (full results can be found at [`log.txt`](./log.txt)):
+following is some log example (full results can be found at [`log.txt`](./logs/log.txt)):
 
 ```txt
 # RGB
@@ -76,9 +76,9 @@ Test Accuracy of ModelType.DecisionTree =  0.9496
 ```
 
 Here is an example using the `Gray` color space and HOG parameters of `orientations=8`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
-<img src="./test_images/test1_hog.jpg" alt="Drawing" width="600"/>
+<img src="./output_images/car/test1_hog.jpg" alt="Drawing" width="600"/>
 
-Code on hog features of 3D image can be found in line 52 of the file called [`features.py`](./src/features.py)
+Code on hog features of 3D image can be found in line 52 of the file called [`features.py`](./src/car/features.py)
 ```python
 
 def hog_features3D(img, hog_channel, orient,
@@ -100,7 +100,7 @@ def hog_features3D(img, hog_channel, orient,
 
 #### 2. Explain how you settled on your final choice of HOG parameters.
 
-I tried various combinations of parameters and see the accuracy of classifier, full results can be found at [`log.txt`](./log.txt).
+I tried various combinations of parameters and see the accuracy of classifier, full results can be found at [`log.txt`](./logs/log.txt).
 Following is the final parameters for all feature extraction:
 ```python
 
@@ -140,7 +140,7 @@ but can be as efficient as Decision Tree in prediction/evaluation
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
 * I decided to search random window positions at random scales all over the image and with overlap 0.5:
-* After it takes 20s for labeling each image, I implement more efficient on that extract hog feature once. Code is in the line 62 of the file called [`search.py`](./src/search.py)
+* After it takes 20s for labeling each image, I implement more efficient on that extract hog feature once. Code is in the line 62 of the file called [`search.py`](./src/car/search.py)
 * Further optimization are done
 
 
@@ -155,11 +155,11 @@ cells_per_step = [1, 1, 1]
 
 ```
 
-<img src="./test_images/test1_multi.jpg" alt="Drawing" width="300"/>
-<img src="./test_images/test3_multi.jpg" alt="Drawing" width="300"/>
-<img src="./test_images/test4_multi.jpg" alt="Drawing" width="300"/>
+<img src="./output_images/car/test1_multi.jpg" alt="Drawing" width="300"/>
+<img src="./output_images/car/test3_multi.jpg" alt="Drawing" width="300"/>
+<img src="./output_images/car/test4_multi.jpg" alt="Drawing" width="300"/>
 
-Code is in the file called [`P5.py`](./src/P5.py)
+Code is in the file called [`P5.py`](./src/pipeline.py)
 
 ---
 
@@ -167,7 +167,7 @@ Code is in the file called [`P5.py`](./src/P5.py)
 
 #### 1. Provide a link to your final video output.
 Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
-Here's a [link to my video result](./project_video_labeled.mp4)
+Here's a [link to my video result](./video/project_video_labeled.mp4)
 
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
@@ -179,7 +179,7 @@ I then assumed each blob corresponded to a vehicle.  I constructed bounding boxe
 I further filter the false positives by recording the center of blob (heatmap center with maximum value, car detected),
 and remove those change windows that heatmap center less than a value
 
-Please check Code is in the file called [`P5.py`](./src/P5.py) for all details
+Please check Code is in the file called [`P5.py`](./src/pipeline.py) for all details
 
 ---
 
