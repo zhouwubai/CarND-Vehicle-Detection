@@ -3,107 +3,21 @@ import collections
 import numpy as np
 import cv2
 
+from line.base import Line
 from line.search import (
-    find_lines,
-    find_lines_with_previous,
-    curvature_pixel_2_meter,
-    evaluate,
-    deviate_of_center
+    search_lines,
+    fast_search_lines,
 )
 from line.threshold import majority_vote
 
 
-# Define a class to receive the characteristics of each line detection
-class Line():
-    def __init__(self, fit, fitx, fity,
-                 ym_per_pix=28 / 720, xm_per_pix=3.7 / 650,
-                 image_size=(1280, 720)):
-        # polynomial coefficients for the most recent fit
-        self.fit = fit
-        self.allx = fitx
-        self.ally = fity
-        self.image_size = image_size
-        self.ym_per_pix = ym_per_pix
-        self.xm_per_pix = xm_per_pix
-
-        self.radius_of_curvature = None
-        self.base_pos = None
-        self.average_x = None
-        self.update()
-
-    def update(self):
-        """
-        update line after some changes
-        """
-        self.update_curvature()
-        self.update_base_pose()
-
-    def shift(self, distance):
-        """
-        shift a line by number of meter, negative->left, postive->right
-        """
-        self.fit[2] += distance / self.xm_per_pix
-        self.update()
-
-    def is_empty(self):
-        return (self.fit is None)
-
-    def num_points(self):
-        return len(self.allx)
-
-    def update_curvature(self):
-        if not self.is_empty():
-            self.radius_of_curvature =\
-                curvature_pixel_2_meter(self.fit, self.image_size[1],
-                                        self.ym_per_pix, self.xm_per_pix)
-
-    def update_base_pose(self):
-        if not self.is_empty():
-            bottom_x = evaluate(self.fit, self.image_size[0])
-            self.base_pos =\
-                (bottom_x - self.image_size[1] / 2) * self.xm_per_pix
-
-    def is_parallel(self, other, max_error=1.0):
-        if self.is_empty() or other.is_empty():
-            return False
-        else:
-            diffs = np.absolute(self.difference(other)[: 2])
-            # print("X1 - X2: {}, sum: {}".format(diffs, np.sum(diffs)))
-            return (np.sum(diffs) < max_error)
-
-    def difference(self, other):
-        return self.fit - other.fit
-
-
-class Lane():
-    def __init__(self, left_line=None, right_line=None):
-        self.left_line = left_line
-        self.right_line = right_line
-        self.lane_width = None
-        self.update()
-
-    def update(self):
-        self.update_width()
-
-    def update_width(self):
-        if not self.left_line.is_empty() and not self.right_line.is_empty():
-            self.lane_width =\
-                self.right_line.base_pos - self.left_line.base_pos
-
-    def get_raw_lines(self):
-        return (self.left_line.fit, self.right_line.fit)
-
-
-class Road():
+class LineDetector(object):
     def __init__(self, calibrator=None, unwarper=None,
-                 keep_n=10, alpha=0.8,
-                 ym_per_pix=28 / 720, xm_per_pix=3.7 / 650):
+                 keep_n=10, alpha=0.8):
 
         self.calibrator = calibrator
         self.unwarper = unwarper
         self.alpha = alpha
-        self.ym_per_pix = ym_per_pix
-        self.xm_per_pix = xm_per_pix
 
         self.detected = False
         self.history = collections.deque(maxlen=keep_n)
@@ -111,84 +25,68 @@ class Road():
         self.warped = []
         self.results = []
 
-        self.lanes_before = []
-        self.lanes_after = []
+        self.lines_before = []
+        self.lines_after = []
 
-    def is_history_ready(self):
-        """
-        in case history has no data
-        """
-        return len(self.history) > 0
+    def avg_left_coeffs(self):
+        return np.average([_[0].coeffs for _ in self.history], axis=0)
 
-    def peek_history_last(self):
-        return self.history[-1]
-
-    def best_left_fit(self):
-        return np.average([_.left_line.fit for _ in self.history], axis=0)
-
-    def best_right_fit(self):
-        return np.average([_.right_line.fit for _ in self.history], axis=0)
+    def avg_right_coeffs(self):
+        return np.average([_[1].coeffs for _ in self.history], axis=0)
 
     def best_lane_width(self):
-        return np.average([_.lane_width for _ in self.history])
+        return np.average([Line.calculate_width(*lines)
+                          for lines in self.history])
 
-    def smooth_lane(self, lane):
-        if lane.left_line.is_empty() and lane.right_line.is_empty():
-            lane.left_line = copy.deepcopy(self.history[-1].left_line)
-            lane.right_line = copy.deepcopy(self.history[-1].right_line)
-            lane.update()
-            return
-        elif lane.left_line.is_empty():
-            lane.left_line = copy.deepcopy(self.history[-1].left_line)
-        elif lane.right_line.is_empty():
-            lane.right_line = copy.deepcopy(self.history[-1].right_line)
-
-        # smooth with history here
-        lane.left_line.fit =\
-            (1 - self.alpha) * self.best_left_fit() +\
-            self.alpha * lane.left_line.fit
-        lane.left_line.update()
-        lane.right_line.fit =\
-            (1 - self.alpha) * self.best_right_fit() +\
-            self.alpha * lane.right_line.fit
-        lane.right_line.update()
-        lane.update()
-
-    def is_high_quality(self, lane, error=0.8):
-        if lane.left_line.fit is None or lane.right_line.fit is None:
+    def is_high_quality(self, left_line, right_line, error=0.8):
+        if not left_line.is_sufficient() and not right_line.is_sufficient():
             return False
 
-        flag1 = lane.left_line.is_parallel(lane.right_line)
-        diff = np.absolute(lane.lane_width - self.best_lane_width())
+        flag1 = left_line.is_parallel(right_line)
+        lane_width = Line.calculate_width(left_line, right_line)
+        diff = np.absolute(lane_width - self.best_lane_width())
         # print(lane.lane_width, self.best_lane_width(), diff)
         flag2 = (diff > error)
         return (flag1 and flag2)
 
-    def sanityCheck(self, left_fit, right_fit,
-                    leftx, lefty, rightx, righty, refit=False):
+    def smooth_lines(self, left_line, right_line):
+        if (not left_line.is_sufficient() and
+                not right_line.is_sufficient()):
+            return copy.deepcopy(self.history[-1])
+        elif not left_line.is_sufficient():
+            left_line = copy.deepcopy(self.history[-1][0])
+        elif not right_line.is_sufficient():
+            right_line = copy.deepcopy(self.history[-1][1])
+
+        # smooth with history here
+        left_line.set_coeffs((1 - self.alpha) * self.avg_left_coeffs() +
+                             self.alpha * left_line.coeffs)
+
+        right_line.set_coeffs((1 - self.alpha) * self.avg_right_coeffs() +
+                              self.alpha * right_line.coeffs)
+        return left_line, right_line
+
+    def sanityCheck(self, left_line, right_line, refit=False):
         if not refit:
-            if left_fit is None and right_fit is None:
-                return (False, left_fit, right_fit)
+            if left_line.is_sufficient() and right_line.is_sufficient():
+                return (False, left_line, right_line)
 
-        left_line = Line(left_fit, leftx, lefty)
-        right_line = Line(right_fit, rightx, righty)
-        new_lane = Lane(left_line, right_line)
-
-        self.lanes_before.append(copy.deepcopy(new_lane))
+        self.lines_before.append(copy.deepcopy((left_line, right_line)))
         # not enought history, just add them
-        if not self.is_history_ready():
-            self.history.append(new_lane)
+        if len(self.history) > 0:
+            self.history.append((left_line, right_line))
         else:
             # one append high quality lane to history
-            if self.is_high_quality(new_lane):
+            if self.is_high_quality(left_line, right_line):
                 self.detected = True
-                self.history.append(new_lane)
+                self.history.append((left_line, right_line))
             else:
                 self.detected = False
-                self.smooth_lane(new_lane)
-        self.lanes_after.append(new_lane)
+                left_line, right_line =\
+                    self.smooth_lines(left_line, right_line)
+        self.lines_after.append((left_line, right_line))
 
-        return (True, new_lane.left_line.fit, new_lane.right_line.fit)
+        return (True, left_line, right_line)
 
     def process_image(self, image):
         # step one: undistorted image
@@ -207,25 +105,24 @@ class Road():
         # already know line from previous frame
         is_passed = False
         if self.detected:
-            hist_left_fit, hist_right_fit =\
-                self.peek_history_last().get_raw_lines()
-            left_fit, right_fit, leftx, lefty, rightx, righty =\
-                find_lines_with_previous(binary_warped,
-                                         hist_left_fit, hist_right_fit)
+            hist_left_line, hist_right_line = self.history[-1]
+            hist_left_coeffs, hist_right_coeffs =\
+                hist_left_line.coeffs, hist_right_line.coeffs
+            left_line, right_line =\
+                fast_search_lines(binary_warped,
+                                  hist_left_coeffs, hist_right_coeffs)
             # sanityCheck
-            is_passed, left_fit, right_fit =\
-                self.sanityCheck(left_fit, right_fit,
-                                 leftx, lefty, rightx, righty, False)
+            is_passed, left_line, right_line =\
+                self.sanityCheck(left_line, right_line, False)
 
         # detect line from stratch
         if not is_passed:
-            left_fit, right_fit, leftx, lefty, rightx, righty =\
-                find_lines(binary_warped)
+            left_line, right_line = search_lines(binary_warped)
             # sanityCheck
-            is_passed, left_fit, right_fit =\
-                self.sanityCheck(left_fit, right_fit,
-                                 leftx, lefty, rightx, righty, True)
+            is_passed, left_line, right_line =\
+                self.sanityCheck(left_line, right_line, True)
 
+        left_fit, right_fit = left_line.coeffs, right_line.coeffs
         ploty = np.linspace(0, shape[0] - 1, shape[0])
         left_fitx =\
             left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
@@ -247,16 +144,12 @@ class Road():
                                       self.unwarper.inv_M, img_size)
 
         # get the curvature and put text
-        y_eval = np.max(ploty)
-        left_curve = curvature_pixel_2_meter(left_fit, y_eval,
-                                             self.ym_per_pix, self.xm_per_pix)
-        right_curve = curvature_pixel_2_meter(right_fit, y_eval,
-                                              self.ym_per_pix, self.xm_per_pix)
+        left_curve = left_line.radius_of_curvature
+        right_curve = right_line.radius_of_curvature
 
         avg_curve = (left_curve + right_curve) / 2
         curvature_txt = "Radius of Curvature = {:.0f}(m)".format(avg_curve)
-        deviation =\
-            deviate_of_center(left_fit, right_fit, shape) * self.xm_per_pix
+        deviation = Line.deviate_of_center(left_line, right_line)
         if deviation >= 0:
             dtxt = "Vechicle is {:.2f}(m) right of center".format(deviation)
         else:
@@ -273,5 +166,4 @@ class Road():
         result = cv2.addWeighted(undistorted, 1, newwarp, 0.3, 0)
         self.results.append(result)
         return result
-
 

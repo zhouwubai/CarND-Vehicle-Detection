@@ -66,6 +66,18 @@ def draw_labeled_bboxes(img, labels, heatmap=None, threshold=25):
     return img
 
 
+def eval_poly(coeffs, y):
+    return (coeffs[0] * y ** 2 + coeffs[1] * y + coeffs[2])
+
+
+def curvature_poly(coeffs, y):
+    """
+    calculate the curvature of a polyline at point y
+    """
+    a, b = coeffs[0], coeffs[1]
+    return ((1 + (2 * a * y + b) ** 2) ** 1.5 / np.absolute(2 * a))
+
+
 def draw_boxes(img, bboxes, color=(0, 0, 255), thick=6):
     draw_img = np.copy(img)
     for box in bboxes:
