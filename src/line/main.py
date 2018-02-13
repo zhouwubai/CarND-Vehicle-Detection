@@ -18,7 +18,7 @@ if __name__ == '__main__':
     detector = LineDetector(calibrator=calibrator, unwarper=unwarper,
                             keep_n=10, alpha=0.6)
     # NOTE: this function expects    color images!!
-    white_clip = clip1.fl_image(detector.process_image)
+    white_clip = clip1.fl_image(detector.process)
     white_clip.write_videofile(video_output, audio=False)
 
 

@@ -81,7 +81,7 @@ class LineDetector(object):
 
         return (True, left_line, right_line)
 
-    def process_image(self, image):
+    def process(self, image):
         # step one: undistorted image
         # import pdb
         # pdb.set_trace()
@@ -138,7 +138,6 @@ class LineDetector(object):
         3. showing unwarped with detected lines and windows
         4. put text info of curvature and deviation from center
         """
-
         shape = undistorted.shape
         img_size = (shape[1], shape[0])
 
@@ -154,6 +153,21 @@ class LineDetector(object):
         left_fitx, right_fitx =\
             left_fitx.astype(np.int32), right_fitx.astype(np.int32)
 
+        # Recast the x and y points into usable format for cv2.fillPoly()
+        unwarp_zero = np.zeros_like(binary_unwarped).astype(np.uint8)
+        color_unwarp = np.dstack((unwarp_zero, unwarp_zero, unwarp_zero))
+        pts_left = np.array([
+            np.transpose(np.vstack([left_fitx, ploty]))])
+        pts_right = np.array([
+            np.flipud(np.transpose(np.vstack([right_fitx, ploty])))])
+        pts = np.hstack((pts_left, pts_right))
+
+        # Draw the lane onto the warped blank image
+        cv2.fillPoly(color_unwarp, np.int_([pts]), (0, 255, 0))
+        warped_road = cv2.warpPerspective(color_unwarp,
+                                          self.unwarper.inv_M, img_size)
+
+        # draw the panel info
         # draw line and windows on this
         unwarped_line_win =\
             np.dstack((binary_unwarped, binary_unwarped, binary_unwarped))
@@ -183,20 +197,6 @@ class LineDetector(object):
         offset_x = undistorted.shape[1] - info_panel_small.shape[1]
         undistorted[0:info_panel_small.shape[0], offset_x:] = info_panel_small
 
-        # Recast the x and y points into usable format for cv2.fillPoly()
-        unwarp_zero = np.zeros_like(binary_unwarped).astype(np.uint8)
-        color_unwarp = np.dstack((unwarp_zero, unwarp_zero, unwarp_zero))
-        pts_left = np.array([
-            np.transpose(np.vstack([left_fitx, ploty]))])
-        pts_right = np.array([
-            np.flipud(np.transpose(np.vstack([right_fitx, ploty])))])
-        pts = np.hstack((pts_left, pts_right))
-
-        # Draw the lane onto the warped blank image
-        cv2.fillPoly(color_unwarp, np.int_([pts]), (0, 255, 0))
-        warped_road = cv2.warpPerspective(color_unwarp,
-                                          self.unwarper.inv_M, img_size)
-
         # get the curvature and put text
         left_curve = left_line.radius_of_curvature
         right_curve = right_line.radius_of_curvature
@@ -216,9 +216,6 @@ class LineDetector(object):
                     cv2.FONT_HERSHEY_SIMPLEX,
                     1, (255, 255, 255), 2, cv2.LINE_AA)
 
-        # Combine the result with the original image
         result = cv2.addWeighted(undistorted, 1, warped_road, 0.3, 0)
-
         return result
-
 

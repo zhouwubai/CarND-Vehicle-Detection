@@ -45,6 +45,7 @@ def apply_threshold(heatmap, threshold):
 
 def draw_labeled_bboxes(img, labels, heatmap=None, threshold=25):
     # Iterate through all detected cars
+    alive_box = []
     for car_number in range(1, labels[1] + 1):
         # Find pixels with each car_number label value
         nonzero = (labels[0] == car_number).nonzero()
@@ -54,16 +55,19 @@ def draw_labeled_bboxes(img, labels, heatmap=None, threshold=25):
         # Define a bounding box based on min/max x and y
         bbox = ((np.min(nonzerox), np.min(nonzeroy)),
                 (np.max(nonzerox), np.max(nonzeroy)))
+
         # Draw the box on the image
         if heatmap is not None:
             max_val = np.max(heatmap[bbox[0][1]:bbox[1][1],
                                      bbox[0][0]:bbox[1][0]])
             if max_val >= threshold:
                 cv2.rectangle(img, bbox[0], bbox[1], (0, 0, 255), 6)
+                alive_box.append(bbox)
         else:
             cv2.rectangle(img, bbox[0], bbox[1], (0, 0, 255), 6)
+            alive_box.append(bbox)
     # Return the image
-    return img
+    return img, alive_box
 
 
 def eval_poly(coeffs, y):
