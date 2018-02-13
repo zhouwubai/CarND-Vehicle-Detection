@@ -37,10 +37,10 @@ def search_lines(binary_warped, nwindows=9, margin=100,
 
         # Draw the windows on the visualization image
         if draw_windows:
-            left_windows.append((win_xleft_low, win_y_low),
-                                (win_xleft_high, win_y_high))
-            right_windows.append((win_xright_low, win_y_low),
-                                 (win_xright_high, win_y_high))
+            left_windows.append(((win_xleft_low, win_y_low),
+                                (win_xleft_high, win_y_high)))
+            right_windows.append(((win_xright_low, win_y_low),
+                                 (win_xright_high, win_y_high)))
 
         # Identify the nonzero pixels in x and y within the window
         good_left_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) &

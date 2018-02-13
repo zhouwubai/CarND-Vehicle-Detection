@@ -16,7 +16,7 @@ if __name__ == '__main__':
     video_output = ROOT + 'video/project_video_labeled_line.mp4'
     clip1 = VideoFileClip(video_input)
     detector = LineDetector(calibrator=calibrator, unwarper=unwarper,
-                            keep_n=10, alpha=0.2)
+                            keep_n=10, alpha=0.6)
     # NOTE: this function expects    color images!!
     white_clip = clip1.fl_image(detector.process_image)
     white_clip.write_videofile(video_output, audio=False)

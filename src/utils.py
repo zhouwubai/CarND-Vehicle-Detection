@@ -156,13 +156,13 @@ def drawBinaryImage(images, n_col=3, title=None, savefile=None):
     plt.show()
 
 
-def saveFigures(images, filenames):
+def save_figures(images, filenames):
     assert len(images) == len(filenames)
     for image, filename in zip(images, filenames):
         cv2.imwrite(filename, np.dstack((image, image, image)) * 255)
 
 
-def drawLines(left_fit, right_fit, ymax=720):
+def draw_lines(left_fit, right_fit, ymax=720):
     ploty = np.linspace(0, ymax - 1, ymax)
     l_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
     r_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
@@ -174,8 +174,11 @@ def drawLines(left_fit, right_fit, ymax=720):
     plt.show()
 
 
-def draw_boxes(img, bboxes, color=(0, 0, 255), thick=6):
-    draw_img = np.copy(img)
+def draw_boxes(img, bboxes, color=(0, 0, 255), thick=6, inplace=False):
+    if inplace:
+        draw_img = img
+    else:
+        draw_img = np.copy(img)
     for box in bboxes:
         cv2.rectangle(draw_img, box[0], box[1], color, thick)
     return draw_img
