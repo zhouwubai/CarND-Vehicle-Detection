@@ -25,9 +25,6 @@ class LineDetector(object):
         self.warped = []
         self.results = []
 
-        self.lines_before = []
-        self.lines_after = []
-
     def avg_left_coeffs(self):
         return np.average([_[0].coeffs for _ in self.history], axis=0)
 
@@ -71,9 +68,8 @@ class LineDetector(object):
             if left_line.is_sufficient() and right_line.is_sufficient():
                 return (False, left_line, right_line)
 
-        self.lines_before.append(copy.deepcopy((left_line, right_line)))
         # not enought history, just add them
-        if len(self.history) > 0:
+        if len(self.history) == 0:
             self.history.append((left_line, right_line))
         else:
             # one append high quality lane to history
@@ -84,12 +80,13 @@ class LineDetector(object):
                 self.detected = False
                 left_line, right_line =\
                     self.smooth_lines(left_line, right_line)
-        self.lines_after.append((left_line, right_line))
 
         return (True, left_line, right_line)
 
     def process_image(self, image):
         # step one: undistorted image
+        # import pdb
+        # pdb.set_trace()
         thresh_names, n_vote = ['S', 'R', 'X'], 2
         shape = image.shape
         img_size = (shape[1], shape[0])

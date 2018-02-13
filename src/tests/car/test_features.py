@@ -4,7 +4,6 @@ import matplotlib.image as mpimg
 
 from features import *
 from constants import *
-from utils import cvtColor
 
 
 def test_color_hist(f_path):
