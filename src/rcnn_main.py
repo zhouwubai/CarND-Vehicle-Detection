@@ -1,9 +1,7 @@
-import pickle
 from moviepy.editor import VideoFileClip
 
 from line.models import LineDetector
-from car.models import ModelType
-from car.piper import CarDectorPiper
+from faster_rcnn.piper import FasterRCNNCarDetector
 from line.transform import Calibrator, Unwarper
 from constants import ROOT
 from utils import draw_boxes
@@ -32,26 +30,16 @@ if __name__ == '__main__':
                                  unwarper=unwarper,
                                  keep_n=10, alpha=0.6)
 
-    name = ModelType.LinearSVC
-    model_path = ROOT + 'models/car_model_{}.pkl'.format(name)
+    model_path = ROOT +\
+        'data/faster_rcnn/checkpoints/fasterrcnn_caffe_pretrain.pth'
     print('Loading model in {}...'.format(model_path))
-    car_detector = pickle.load(open(model_path, 'rb'))
-    print(car_detector.print_params())
-
-    keep_n = 6
-    threshold = 10
-    draw_heatmap = True
-    piper = CarDectorPiper(car_detector,
-                           keep_n=keep_n,
-                           threshold=threshold,
-                           draw_heatmap=draw_heatmap,
-                           standalone=False)
+    car_detector = FasterRCNNCarDetector(model_path)
 
     oracle_detector = OracleDetector(line_detector=line_detector,
-                                     car_detector=piper)
+                                     car_detector=car_detector)
 
     video_input = ROOT + 'video/project_video.mp4'
-    video_output = ROOT + 'video/project_video_labeled_line_car.mp4'
+    video_output = ROOT + 'video/project_video_labeled_fasterrcnn.mp4'
     clip1 = VideoFileClip(video_input)
 
     # NOTE: this function expects    color images!!

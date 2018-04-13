@@ -99,3 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+constants.py
+data/*
+.bsync-snap-*
